@@ -32,7 +32,11 @@ import com.galileo.cu.unidades.repositorios.OperacionesRepository;
 import com.galileo.cu.unidades.repositorios.TrazasRepository;
 import com.galileo.cu.unidades.repositorios.UnidadesRepository;
 import com.galileo.cu.unidades.repositorios.UnidadesUsuariosRepository;
+import com.galileo.cu.unidades.repositorios.UsuariosRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 @RepositoryEventHandler(Unidades.class)
 public class UnidadesEventHandler {
@@ -42,7 +46,7 @@ public class UnidadesEventHandler {
 
 	@Autowired
 	private OperacionesFeignClient operacionesFeignClient;
-	
+
 	@Autowired
 	BalizasRepository balizasRepo;
 
@@ -60,65 +64,71 @@ public class UnidadesEventHandler {
 
 	@Autowired
 	UnidadesRepository uniRepo;
-	
+
 	@Autowired
-    ObjectMapper objectMapper;
+	UsuariosRepository usuRepo;
+
+	@Autowired
+	ObjectMapper objectMapper;
 
 	String descripcionTraza;
 
 	@HandleBeforeCreate
 	public void handleUnidadesCreate(Unidades unidad) {
 		System.out.println("Antes de Crear Unidades");
-		/*Enumeration<String> names = req.getHeaderNames();
-		while (names.hasMoreElements())
-			System.out.println(names.nextElement());*/
+		/*
+		 * Enumeration<String> names = req.getHeaderNames();
+		 * while (names.hasMoreElements())
+		 * System.out.println(names.nextElement());
+		 */
 
 		System.out.println(req.getHeader("Authorization"));
 
-		/*Validando Autorización */
+		/* Validando Autorización */
 		try {
-			ValidateAuthorization val= new ValidateAuthorization();
-			System.out.println("REQUEST HandleBeforeCreate: "+req.getMethod());
+			ValidateAuthorization val = new ValidateAuthorization();
+			System.out.println("REQUEST HandleBeforeCreate: " + req.getMethod());
 			val.setObjectMapper(objectMapper);
 			val.setReq(req);
 			if (!val.Validate()) {
 				throw new RuntimeException("Error el Usuario Enviado no Coincide con el Autenticado ");
 			}
 		} catch (Exception e) {
-			System.out.println("Error Antes de Crear Unidad Validando Autorización: "+e.getMessage());
-			throw new RuntimeException("Error Antes de Crear Unidad Validando Autorización: "+e.getMessage());
+			System.out.println("Error Antes de Crear Unidad Validando Autorización: " + e.getMessage());
+			throw new RuntimeException("Error Antes de Crear Unidad Validando Autorización: " + e.getMessage());
 		}
 	}
 
 	@HandleAfterCreate
-	public void handleUnidadesAfterCreate(Unidades unidad){
-		/*Validando Autorización */
-		ValidateAuthorization val= new ValidateAuthorization();
+	public void handleUnidadesAfterCreate(Unidades unidad) {
+		/* Validando Autorización */
+		ValidateAuthorization val = new ValidateAuthorization();
 		try {
-			System.out.println("REQUEST HandleAfterCreate: "+req.getMethod());
+			System.out.println("REQUEST HandleAfterCreate: " + req.getMethod());
 			val.setObjectMapper(objectMapper);
 			val.setReq(req);
 			if (!val.Validate()) {
 				throw new RuntimeException("Error el Usuario Enviado no Coincide con el Autenticado ");
 			}
 		} catch (Exception e) {
-			System.out.println("Error Antes de Crear Unidad Validando Autorización: "+e.getMessage());
-			throw new RuntimeException("Error Antes de Crear Unidad Validando Autorización: "+e.getMessage());
+			System.out.println("Error Antes de Crear Unidad Validando Autorización: " + e.getMessage());
+			throw new RuntimeException("Error Antes de Crear Unidad Validando Autorización: " + e.getMessage());
 		}
 
 		try {
-            uniRepo.crearTablaPos(unidad.getId().toString());
+			uniRepo.crearTablaPos(unidad.getId().toString());
 		} catch (Exception e) {
-			System.out.println("Error Despues de Crear Unidad Ejecutando Procedimiento Almacenado: "+e.getMessage());
-			//throw new RuntimeException("Error Antes de Crear Unidad Ejecutando Procedimiento Almacenado: ");
+			System.out.println("Error Despues de Crear Unidad Ejecutando Procedimiento Almacenado: " + e.getMessage());
+			// throw new RuntimeException("Error Antes de Crear Unidad Ejecutando
+			// Procedimiento Almacenado: ");
 		}
 
 		try {
 			System.out.println("Insertar la Creación de Unidad en la Trazabilidad AfterCreate");
-			Trazas traza=new Trazas();
-			AccionEntidad accion=new AccionEntidad();
-			Usuarios usuario=new Usuarios();
-			TipoEntidad entidad=new TipoEntidad();
+			Trazas traza = new Trazas();
+			AccionEntidad accion = new AccionEntidad();
+			Usuarios usuario = new Usuarios();
+			TipoEntidad entidad = new TipoEntidad();
 
 			entidad.setId(5);
 			accion.setId(1);
@@ -128,9 +138,9 @@ public class UnidadesEventHandler {
 			traza.setTipoEntidad(entidad);
 			traza.setUsuario(usuario);
 			traza.setIdEntidad(unidad.getId().intValue());
-			traza.setDescripcion("Fue Creada una nueva Unidad: "+unidad.getDenominacion());
+			traza.setDescripcion("Fue Creada una nueva Unidad: " + unidad.getDenominacion());
 			trazasRepo.save(traza);
-			
+
 		} catch (Exception e) {
 			System.out.println("Error al Insertar la Unidad en la Trazabilidad");
 			System.out.println(e.getMessage());
@@ -140,100 +150,106 @@ public class UnidadesEventHandler {
 	}
 
 	@HandleBeforeSave
-	public void handleUnidadesBeforeSave(Unidades unidad){
-		/*Validando Autorización */
-		ValidateAuthorization val= new ValidateAuthorization();
+	public void handleUnidadesBeforeSave(Unidades unidad) {
+		/* Validando Autorización */
+		ValidateAuthorization val = new ValidateAuthorization();
 		try {
-			System.out.println("REQUEST HandleBeforeSave: "+req.getMethod());
+			System.out.println("REQUEST HandleBeforeSave: " + req.getMethod());
 			val.setObjectMapper(objectMapper);
 			val.setReq(req);
 			if (!val.Validate()) {
 				throw new RuntimeException("Error el Usuario Enviado no Coincide con el Autenticado ");
 			}
 		} catch (Exception e) {
-			System.out.println("Error Antes de Eliminar la Unidad Validando Autorización: "+e.getMessage());
-			throw new RuntimeException("Error Antes de Eliminar la Unidad Validando Autorización: "+e.getMessage());
+			System.out.println("Error Antes de Eliminar la Unidad Validando Autorización: " + e.getMessage());
+			throw new RuntimeException("Error Antes de Eliminar la Unidad Validando Autorización: " + e.getMessage());
 		}
 	}
 
 	@HandleAfterSave
-	public void handleUnidadesAfterSave(Unidades unidad){
-		/*Validando Autorización */
-		ValidateAuthorization val= new ValidateAuthorization();
+	public void handleUnidadesAfterSave(Unidades unidad) {
+		/* Validando Autorización */
+		ValidateAuthorization val = new ValidateAuthorization();
 		try {
-			System.out.println("REQUEST HandleAfterSave: "+req.getMethod());
+			System.out.println("REQUEST HandleAfterSave: " + req.getMethod());
 			val.setObjectMapper(objectMapper);
 			val.setReq(req);
 			if (!val.Validate()) {
 				throw new RuntimeException("Error el Usuario Enviado no Coincide con el Autenticado ");
 			}
 		} catch (Exception e) {
-			System.out.println("Error Despues de Actualizar la Unidad Validando Autorización: "+e.getMessage());
-			throw new RuntimeException("Error Despues de Actualizar la Unidad Validando Autorización: "+e.getMessage());
+			System.out.println("Error Despues de Actualizar la Unidad Validando Autorización: " + e.getMessage());
+			throw new RuntimeException(
+					"Error Despues de Actualizar la Unidad Validando Autorización: " + e.getMessage());
 		}
 
-		ActualizarTrazaObjetivo(val, unidad.getId().intValue(), 5, 3, "Fue Actualizada la Unidad: " + unidad.getDenominacion(),
+		ActualizarTrazaObjetivo(val, unidad.getId().intValue(), 5, 3,
+				"Fue Actualizada la Unidad: " + unidad.getDenominacion(),
 				"Error Insertando la Actualización de la Unidad: " + unidad.getDenominacion() + " en la Trazabilidad");
 	}
 
 	@HandleBeforeDelete
-	public void handleUnidadesDelete(Unidades unidad) {		
-		/*Validando Autorización */
-		ValidateAuthorization val= new ValidateAuthorization();
+	public void handleUnidadesDelete(Unidades unidad) {
+		/* Validando Autorización */
+		ValidateAuthorization val = new ValidateAuthorization();
 		try {
-			System.out.println("REQUEST HandleBeforeDelete: "+req.getMethod());
+			System.out.println("REQUEST HandleBeforeDelete: " + req.getMethod());
 			val.setObjectMapper(objectMapper);
 			val.setReq(req);
 			if (!val.Validate()) {
 				throw new RuntimeException("Error el Usuario Enviado no Coincide con el Autenticado ");
 			}
 		} catch (Exception e) {
-			System.out.println("Error Antes de Eliminar la Unidad Validando Autorización: "+e.getMessage());
-			throw new RuntimeException("Error Antes de Eliminar la Unidad Validando Autorización: "+e.getMessage());
-		}		
+			System.out.println("Error Antes de Eliminar la Unidad Validando Autorización: " + e.getMessage());
+			throw new RuntimeException("Error Antes de Eliminar la Unidad Validando Autorización: " + e.getMessage());
+		}
 
 		try {
 			uniRepo.borrarTablaPos(unidad.getId().toString());
 		} catch (Exception e) {
-			System.out.println("Error Antes de Eliminar Unidad Ejecutando Procedimiento Almacenado: "+e.getMessage());
-			//throw new RuntimeException("Error Antes de Eliminar Unidad Ejecutando Procedimiento Almacenado: ");
+			System.out.println("Error Antes de Eliminar Unidad Ejecutando Procedimiento Almacenado: " + e.getMessage());
+			// throw new RuntimeException("Error Antes de Eliminar Unidad Ejecutando
+			// Procedimiento Almacenado: ");
 		}
-		
+
 		try {
 			long idUnidad = unidad.getId();
 			List<UnidadesUsuarios> uniUser = uniUserRepo.listaUnidadesUsuarios(idUnidad);
 			if (uniUser.size() > 0) {
 				for (UnidadesUsuarios uniUser2 : uniUser) {
-					uniUserRepo.delete(uniUser2);
+					Usuarios usu = usuRepo.findById(uniUser2.getUsuario().getId()).get();
+					log.info("Usuario: {}, idUnidad: {}", usu.getTip(), usu.getUnidad().getId());
+					// uniUserRepo.delete(uniUser2);
 				}
 			}
+			throw new RuntimeException("Error TEST");
 		} catch (Exception e) {
 			throw new RuntimeException("-----Error al eliminar una unidad ----" + e.getMessage());
 		}
 	}
 
 	@HandleAfterDelete
-	public void handleUnidadesAfterDelete(Unidades unidad){
-		/*Validando Autorización */
-		ValidateAuthorization val= new ValidateAuthorization();
+	public void handleUnidadesAfterDelete(Unidades unidad) {
+		/* Validando Autorización */
+		ValidateAuthorization val = new ValidateAuthorization();
 		try {
-			System.out.println("REQUEST HandleAfterDelete: "+req.getMethod());
+			System.out.println("REQUEST HandleAfterDelete: " + req.getMethod());
 			val.setObjectMapper(objectMapper);
 			val.setReq(req);
 			if (!val.Validate()) {
 				throw new RuntimeException("Error el Usuario Enviado no Coincide con el Autenticado ");
 			}
 		} catch (Exception e) {
-			System.out.println("Error Despues de Eliminar la Unidad Validando Autorización: "+e.getMessage());
-			throw new RuntimeException("Error Despues de Eliminar la Unidad Validando Autorización: "+e.getMessage());
+			System.out.println("Error Despues de Eliminar la Unidad Validando Autorización: " + e.getMessage());
+			throw new RuntimeException("Error Despues de Eliminar la Unidad Validando Autorización: " + e.getMessage());
 		}
 
 		try {
 			System.out.println("Eliminar la Baliza en la Trazabilidad AfterDelete");
-			Trazas traza=new Trazas();
-			AccionEntidad accion=new AccionEntidad();
-			Usuarios usuario=new Usuarios();
-			TipoEntidad entidad=new TipoEntidad();
+			Trazas traza = new Trazas();
+			AccionEntidad accion = new AccionEntidad();
+			Usuarios usuario = new Usuarios();
+			TipoEntidad entidad = new TipoEntidad();
 
 			entidad.setId(5);
 			accion.setId(2);
@@ -243,9 +259,9 @@ public class UnidadesEventHandler {
 			traza.setTipoEntidad(entidad);
 			traza.setUsuario(usuario);
 			traza.setIdEntidad(unidad.getId().intValue());
-			traza.setDescripcion("Fue Eliminada la Unidad: "+unidad.getDenominacion());
+			traza.setDescripcion("Fue Eliminada la Unidad: " + unidad.getDenominacion());
 			trazasRepo.save(traza);
-			
+
 		} catch (Exception e) {
 			System.out.println("Error al Insertar la Eliminación de la Unidad en la Trazabilidad");
 			System.out.println(e.getMessage());
