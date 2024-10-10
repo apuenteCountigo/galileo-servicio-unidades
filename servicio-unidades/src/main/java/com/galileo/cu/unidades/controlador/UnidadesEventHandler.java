@@ -239,6 +239,9 @@ public class UnidadesEventHandler {
 			}
 			throw new RuntimeException("Error TEST");
 		} catch (Exception e) {
+			if (e.getMessage().contains("Fallo")) {
+				throw new RuntimeException(e.getMessage());
+			}
 			log.error("Fallo al eliminar la unidad", e.getMessage());
 			throw new RuntimeException("Fallo al eliminar la unidad");
 		}
