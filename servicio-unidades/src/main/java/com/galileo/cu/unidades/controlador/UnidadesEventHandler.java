@@ -265,7 +265,7 @@ public class UnidadesEventHandler {
 		} catch (Exception e) {
 			err = "Fallo intentando eliminar tabla de posiciones";
 			log.error(err, e.getMessage());
-			throw new RuntimeException(err);
+			// throw new RuntimeException(err);
 		}
 
 	}

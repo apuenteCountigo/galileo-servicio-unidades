@@ -20,7 +20,7 @@ public class ServicioUnidadesApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		System.out.println("**************************************");
-		System.out.println("UNIDADES V1.1-2024-10-10 12:28");
+		System.out.println("UNIDADES V1.1-2024-10-10 13:59");
 	}
 
 }
