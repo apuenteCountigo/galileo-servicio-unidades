@@ -206,13 +206,6 @@ public class UnidadesEventHandler {
 			throw new RuntimeException("Fallo Antes de Eliminar la Unidad Validando Autorización");
 		}
 
-		try {
-			// uniRepo.borrarTablaPos(unidad.getId().toString());
-		} catch (Exception e) {
-			log.error("Error Antes de Eliminar Unidad Ejecutando Procedimiento Almacenado: ", e.getMessage());
-			throw new RuntimeException("Fallo Antes de Eliminar Unidad Ejecutando Procedimiento Almacenado");
-		}
-
 		long idUnidad = unidad.getId();
 		String err = "Fallo, la unidad no puede ser eliminada, porque existen elementos relacionados a ella.";
 
@@ -259,7 +252,6 @@ public class UnidadesEventHandler {
 				log.error(err);
 				throw new RuntimeException(err);
 			}
-			throw new RuntimeException("Error TEST");
 		} catch (Exception e) {
 			if (e.getMessage().contains("Fallo")) {
 				throw new RuntimeException(e.getMessage());
@@ -267,6 +259,15 @@ public class UnidadesEventHandler {
 			log.error("Fallo al eliminar la unidad", e.getMessage());
 			throw new RuntimeException("Fallo al eliminar la unidad");
 		}
+
+		try {
+			uniRepo.borrarTablaPos(unidad.getId().toString());
+		} catch (Exception e) {
+			err = "Fallo intentando eliminar tabla de posiciones";
+			log.error(err, e.getMessage());
+			throw new RuntimeException(err);
+		}
+
 	}
 
 	@HandleAfterDelete
