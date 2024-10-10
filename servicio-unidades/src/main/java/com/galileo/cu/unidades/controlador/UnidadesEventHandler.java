@@ -51,6 +51,9 @@ public class UnidadesEventHandler {
 	BalizasRepository balizasRepo;
 
 	@Autowired
+	OperacionesRepository opRepo;
+
+	@Autowired
 	EstadosRepository estadosrepo;
 
 	@Autowired
@@ -212,6 +215,22 @@ public class UnidadesEventHandler {
 
 		long idUnidad = unidad.getId();
 		String err = "Fallo, la unidad no puede ser eliminada, porque existen elementos relacionados a ella.";
+
+		try {
+			long qty = opRepo.countByUnidades(unidad);
+			if (qty > 0) {
+				log.error("La unidad tiene {} operaciones relacionadas.", qty);
+				log.error(err);
+				throw new RuntimeException(err);
+			}
+		} catch (Exception e) {
+			if (e.getMessage().contains("Fallo")) {
+				throw new RuntimeException(e.getMessage());
+			}
+			err = "Fallo verificando operaciones relacionadas con la unidad";
+			log.error(err, e.getMessage());
+			throw new RuntimeException(err);
+		}
 
 		try {
 			long qty = balizasRepo.countByUnidades(unidad);
