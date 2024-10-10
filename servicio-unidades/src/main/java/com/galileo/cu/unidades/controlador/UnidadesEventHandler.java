@@ -183,7 +183,7 @@ public class UnidadesEventHandler {
 					"Error Despues de Actualizar la Unidad Validando Autorización: " + e.getMessage());
 		}
 
-		ActualizarTrazaObjetivo(val, unidad.getId().intValue(), 5, 3,
+		ActualizarTraza(val, unidad.getId().intValue(), 5, 3,
 				"Fue Actualizada la Unidad: " + unidad.getDenominacion(),
 				"Error Insertando la Actualización de la Unidad: " + unidad.getDenominacion() + " en la Trazabilidad");
 	}
@@ -193,38 +193,54 @@ public class UnidadesEventHandler {
 		/* Validando Autorización */
 		ValidateAuthorization val = new ValidateAuthorization();
 		try {
-			System.out.println("REQUEST HandleBeforeDelete: " + req.getMethod());
 			val.setObjectMapper(objectMapper);
 			val.setReq(req);
 			if (!val.Validate()) {
-				throw new RuntimeException("Error el Usuario Enviado no Coincide con el Autenticado ");
+				throw new RuntimeException("Fallo el Usuario Enviado no Coincide con el Autenticado ");
 			}
 		} catch (Exception e) {
-			System.out.println("Error Antes de Eliminar la Unidad Validando Autorización: " + e.getMessage());
-			throw new RuntimeException("Error Antes de Eliminar la Unidad Validando Autorización: " + e.getMessage());
+			log.error("Fallo Antes de Eliminar la Unidad Validando Autorización: ", e.getMessage());
+			throw new RuntimeException("Fallo Antes de Eliminar la Unidad Validando Autorización");
 		}
 
 		try {
-			uniRepo.borrarTablaPos(unidad.getId().toString());
+			// uniRepo.borrarTablaPos(unidad.getId().toString());
 		} catch (Exception e) {
-			System.out.println("Error Antes de Eliminar Unidad Ejecutando Procedimiento Almacenado: " + e.getMessage());
-			// throw new RuntimeException("Error Antes de Eliminar Unidad Ejecutando
-			// Procedimiento Almacenado: ");
+			log.error("Error Antes de Eliminar Unidad Ejecutando Procedimiento Almacenado: ", e.getMessage());
+			throw new RuntimeException("Fallo Antes de Eliminar Unidad Ejecutando Procedimiento Almacenado");
+		}
+
+		long idUnidad = unidad.getId();
+		String err = "Fallo, la unidad no puede ser eliminada, porque existen elementos relacionados a ella.";
+
+		try {
+			long qty = balizasRepo.countByUnidades(unidad);
+			if (qty > 0) {
+				log.error("La unidad tiene {} balizas relacionadas.", qty);
+				log.error(err);
+				throw new RuntimeException(err);
+			}
+		} catch (Exception e) {
+			err = "Fallo verificando balizas relacionadas con la unidad";
+			log.error(err, e.getMessage());
+			throw new RuntimeException(err);
 		}
 
 		try {
-			long idUnidad = unidad.getId();
 			List<UnidadesUsuarios> uniUser = uniUserRepo.listaUnidadesUsuarios(idUnidad);
 			if (uniUser.size() > 0) {
-				for (UnidadesUsuarios uniUser2 : uniUser) {
-					Usuarios usu = usuRepo.findById(uniUser2.getUsuario().getId()).get();
-					log.info("Usuario: {}, idUnidad: {}", usu.getTip(), usu.getUnidad().getId());
-					// uniUserRepo.delete(uniUser2);
-				}
+				// for (UnidadesUsuarios uniUser2 : uniUser) {
+				// Usuarios usu = usuRepo.findById(uniUser2.getUsuario().getId()).get();
+				// log.info("Usuario: {}, idUnidad: {}", usu.getTip(), usu.getUnidad().getId());
+				// uniUserRepo.delete(uniUser2);
+				// }
+				log.error(err);
+				throw new RuntimeException(err);
 			}
 			throw new RuntimeException("Error TEST");
 		} catch (Exception e) {
-			throw new RuntimeException("-----Error al eliminar una unidad ----" + e.getMessage());
+			log.error("Fallo al eliminar la unidad", e.getMessage());
+			throw new RuntimeException("Fallo al eliminar la unidad");
 		}
 	}
 
@@ -233,14 +249,13 @@ public class UnidadesEventHandler {
 		/* Validando Autorización */
 		ValidateAuthorization val = new ValidateAuthorization();
 		try {
-			System.out.println("REQUEST HandleAfterDelete: " + req.getMethod());
 			val.setObjectMapper(objectMapper);
 			val.setReq(req);
 			if (!val.Validate()) {
 				throw new RuntimeException("Error el Usuario Enviado no Coincide con el Autenticado ");
 			}
 		} catch (Exception e) {
-			System.out.println("Error Despues de Eliminar la Unidad Validando Autorización: " + e.getMessage());
+			log.error("Error Despues de Eliminar la Unidad Validando Autorización: " + e.getMessage());
 			throw new RuntimeException("Error Despues de Eliminar la Unidad Validando Autorización: " + e.getMessage());
 		}
 
@@ -263,13 +278,13 @@ public class UnidadesEventHandler {
 			trazasRepo.save(traza);
 
 		} catch (Exception e) {
-			System.out.println("Error al Insertar la Eliminación de la Unidad en la Trazabilidad");
-			System.out.println(e.getMessage());
+			log.error("Error al Insertar la Eliminación de la Unidad en la Trazabilidad");
+			log.error(e.getMessage());
 			throw new RuntimeException("Error al Insertar la Eliminación de la Unidad en la Trazabilidad");
 		}
 	}
 
-	private void ActualizarTrazaObjetivo(ValidateAuthorization val, int idEntidad, int idTipoEntidad,
+	private void ActualizarTraza(ValidateAuthorization val, int idEntidad, int idTipoEntidad,
 			int idAccion, String trazaDescripcion, String errorMessage) {
 		try {
 			System.out.println("Eliminar el Objetivo en la Trazabilidad AfterDelete");
@@ -289,8 +304,8 @@ public class UnidadesEventHandler {
 			traza.setDescripcion(trazaDescripcion);
 			trazasRepo.save(traza);
 		} catch (Exception e) {
-			System.out.println(errorMessage);
-			System.out.println(e.getMessage());
+			log.error(errorMessage);
+			log.error(e.getMessage());
 			throw new RuntimeException(errorMessage);
 		}
 	}

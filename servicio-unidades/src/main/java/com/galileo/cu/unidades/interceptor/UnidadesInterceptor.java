@@ -25,36 +25,25 @@ public class UnidadesInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
 
-		System.out.println("UNIDADES INTERCEPTOR***" + request.getMethod() + "*******************");
-
 		if (request.getMethod().equals("GET")) {
-			System.out.println(request.getHeader("Authorization"));
 			if (!Strings.isNullOrEmpty(request.getHeader("Authorization"))) {
 				String token = request.getHeader("Authorization").replace("Bearer ", "");
-				System.out.println(token.toString());
-				
+
 				try {
 					String[] chunks = token.split("\\.");
 					Base64.Decoder decoder = Base64.getUrlDecoder();
 					String header = new String(decoder.decode(chunks[0]));
 					String payload = new String(decoder.decode(chunks[1]));
 
-					System.out.println(payload.toString());
-
 					JwtObjectMap jwtObjectMap = objectMapper.readValue(payload.toString().replace("Perfil", "perfil"),
 							JwtObjectMap.class);
-					System.out.println(jwtObjectMap.getId());
 
-					System.out.println("Path:" + request.getRequestURI());
-					System.out.println("Descripcion:" + jwtObjectMap.getPerfil().getDescripcion());
 					if ((request.getRequestURI().equals("/unidades/search/filtro_gestion_unidad")
 							|| request.getRequestURI().equals("/unidades/search/resumen")
 							|| request.getRequestURI().equals("/unidades/search/sinasignar"))
 							&& (jwtObjectMap.getPerfil().getDescripcion().equals("Usuario Final")
 									|| jwtObjectMap.getPerfil().getDescripcion().equals("Invitado Externo")
 									|| jwtObjectMap.getPerfil().getDescripcion().equals("Administrador de Unidad"))) {
-						System.out.println("-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*");
-						System.out.println("id parametro: " + request.getParameter("idAuth"));
 						if (jwtObjectMap.getId().equals(request.getParameter("idAuth"))) {
 							return true;
 						} else {
@@ -84,18 +73,22 @@ public class UnidadesInterceptor implements HandlerInterceptor {
 
 			} else {
 				return true;
-				/*System.out.println("NO HAY TOKEN");
-				response.resetBuffer();
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.setHeader("Content-Type", "application/json;charset=UTF-8");
-				String s="{\"errorMessage\":\"Necesita enviar un Token Válido "+request.getMethod()+" Servicio-Unidades!\"}";
-				response.getOutputStream().write(s.getBytes("UTF-8"));
-				response.flushBuffer();
-
-				return false;*/
+				/*
+				 * System.out.println("NO HAY TOKEN");
+				 * response.resetBuffer();
+				 * response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				 * response.setHeader("Content-Type", "application/json;charset=UTF-8");
+				 * String
+				 * s="{\"errorMessage\":\"Necesita enviar un Token Válido "+request.getMethod()
+				 * +" Servicio-Unidades!\"}";
+				 * response.getOutputStream().write(s.getBytes("UTF-8"));
+				 * response.flushBuffer();
+				 * 
+				 * return false;
+				 */
 			}
 		} else if (request.getMethod().equals("DELETE")) {
-			
+
 		} else {
 			System.out.println("NO GET");
 		}
