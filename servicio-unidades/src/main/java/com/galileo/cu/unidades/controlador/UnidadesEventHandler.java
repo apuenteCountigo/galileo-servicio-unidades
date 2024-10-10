@@ -221,6 +221,9 @@ public class UnidadesEventHandler {
 				throw new RuntimeException(err);
 			}
 		} catch (Exception e) {
+			if (e.getMessage().contains("Fallo")) {
+				throw new RuntimeException(e.getMessage());
+			}
 			err = "Fallo verificando balizas relacionadas con la unidad";
 			log.error(err, e.getMessage());
 			throw new RuntimeException(err);
