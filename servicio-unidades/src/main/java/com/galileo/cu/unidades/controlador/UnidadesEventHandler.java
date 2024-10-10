@@ -121,7 +121,7 @@ public class UnidadesEventHandler {
 		try {
 			uniRepo.crearTablaPos(unidad.getId().toString());
 		} catch (Exception e) {
-			System.out.println("Error Despues de Crear Unidad Ejecutando Procedimiento Almacenado: " + e.getMessage());
+			log.error("Fallo Despues de Crear Unidad Ejecutando Procedimiento Almacenado: " + e.getMessage());
 			// throw new RuntimeException("Error Antes de Crear Unidad Ejecutando
 			// Procedimiento Almacenado: ");
 		}
