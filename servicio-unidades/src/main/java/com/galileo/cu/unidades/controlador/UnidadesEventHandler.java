@@ -246,7 +246,9 @@ public class UnidadesEventHandler {
 			if (uniUser.size() > 0) {
 				// for (UnidadesUsuarios uniUser2 : uniUser) {
 				// Usuarios usu = usuRepo.findById(uniUser2.getUsuario().getId()).get();
-				// log.info("Usuario: {}, idUnidad: {}", usu.getTip(), usu.getUnidad().getId());
+				// log.info("Usuario: {}, idUnidad: {}, Estado: {}", usu.getTip(),
+				// usu.getUnidad().getId(),
+				// uniUser2.getEstado().getDescripcion());
 				// uniUserRepo.delete(uniUser2);
 				// }
 				log.error(err);
