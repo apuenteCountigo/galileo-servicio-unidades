@@ -74,16 +74,16 @@ public interface UnidadesRepository extends PagingAndSortingRepository<Unidades,
 
 	@Query("SELECT un FROM Unidades un WHERE "
 			+ "( "
-			+ "	(:idAuth IN (SELECT id FROM Usuarios WHERE perfil.id=1)) "
-			+ "	OR ( "
-			+ "		(:idAuth IN (SELECT id FROM Usuarios WHERE perfil.id > 1)) "
-			+ "        AND (un.id IN (SELECT uu.unidad.id FROM UnidadesUsuarios uu WHERE uu.usuario.id=:idAuth AND (uu.expira IS NULL OR uu.expira > CURRENT_DATE))) "
-			+ "		) "
+			+ " (:idAuth IN (SELECT id FROM Usuarios WHERE perfil.id=1)) "
+			+ " OR ( "
+			+ "   (:idAuth IN (SELECT id FROM Usuarios WHERE perfil.id > 1)) "
+			+ "   AND (un.id IN (SELECT uu.unidad.id FROM UnidadesUsuarios uu WHERE uu.usuario.id=:idAuth AND (uu.expira IS NULL OR uu.expira > CURRENT_DATE))) "
+			+ " ) "
 			+ ") "
-			+ "AND (:denominacion='' or un.denominacion like %:denominacion%) "
-			+ "AND (:responsable='' or un.responsable like %:responsable%) "
-			+ "AND (un.provincia is null OR :provinciaId=0 OR un.provincia.Id=:provinciaId) "
-			+ "AND (:localidad='' or un.localidad like %:localidad%) ")
+			+ "AND (:denominacion='' OR un.denominacion LIKE %:denominacion% OR un.denominacion IS NULL) "
+			+ "AND (:responsable='' OR un.responsable LIKE %:responsable% OR un.responsable IS NULL) "
+			+ "AND (:provinciaId=0 OR un.provincia.Id=:provinciaId OR un.provincia IS NULL) "
+			+ "AND (:localidad='' OR un.localidad LIKE %:localidad% OR un.localidad IS NULL)")
 	Page<Unidades> filtro_gestion_unidad(long idAuth, int provinciaId, String denominacion, String responsable,
 			String localidad, Pageable p);
 
