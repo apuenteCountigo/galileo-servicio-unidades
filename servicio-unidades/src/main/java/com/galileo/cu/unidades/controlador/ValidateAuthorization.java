@@ -31,7 +31,7 @@ public class ValidateAuthorization {
 
         if (!Strings.isNullOrEmpty(req.getHeader("Authorization"))) {
             String token = req.getHeader("Authorization").replace("Bearer ", "");
-            System.out.println(token.toString());
+
             try {
                 String[] chunks = token.split("\\.");
                 Base64.Decoder decoder = Base64.getUrlDecoder();
