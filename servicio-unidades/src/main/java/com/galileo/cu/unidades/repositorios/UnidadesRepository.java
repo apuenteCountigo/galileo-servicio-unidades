@@ -82,7 +82,9 @@ public interface UnidadesRepository extends PagingAndSortingRepository<Unidades,
 			+ ") "
 			+ "AND (:denominacion='' OR un.denominacion LIKE %:denominacion% OR un.denominacion IS NULL) "
 			+ "AND (:responsable='' OR un.responsable LIKE %:responsable% OR un.responsable IS NULL) "
-			+ "AND (:provinciaId=0 OR un.provincia.Id=:provinciaId OR un.provincia IS NULL) "
+			+ "AND (:provinciaId=0 OR (:provinciaId>0 AND un.provincia.Id = :provinciaId)) "
+			// + "AND (:provinciaId=0 OR un.provincia.Id=:provinciaId OR un.provincia IS
+			// NULL) "
 			+ "AND (:localidad='' OR un.localidad LIKE %:localidad% OR un.localidad IS NULL)")
 	Page<Unidades> filtro_gestion_unidad(long idAuth, int provinciaId, String denominacion, String responsable,
 			String localidad, Pageable p);
